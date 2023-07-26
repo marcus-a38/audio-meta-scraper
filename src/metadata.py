@@ -2,7 +2,7 @@
 #================================================================================#
 # Author: Marcus Antonelli | GitHub: /marcus-a38 | E-Mail: marcus.an38@gmail.com #
 #================================================================================#
-#                Most Recent Publish Date: 7/25/2023 (version 2)                 #
+#                Most Recent Publish Date: 7/19/2023 (version 1)                 #
 #================================================================================#
 #                                                                                #
 #                              -- DISCLAIMER --                                  #
@@ -25,10 +25,9 @@ from mutagen.flac import FLAC
 from mutagen.mp4 import MP4
 from time import sleep
 
-# Developer's Notes
-# Needs reformatting and simplification
-# Needs logging for exceptions
-# Maybe use TQDM ?
+# Needs reformatting and simplification !!!
+# Needs logging for exceptions !!!
+# Maybe use TQDM ???
 # Investigate issues finding DB
 # Nail down proper newlines for CLI
 # More unit tests, can definitely lower complexity and recycle code in some areas
@@ -202,7 +201,7 @@ def get_drives():
     return drive_list[1:] # Remove extra junk in the list
 
 # Does an os.walk of a folder and its subfolders for relevant audio files
-def search_dir(path: str):
+def search_dir(path: str) -> tuple[list[str], list[str]]:
 
     flac_files = []
     mpeg_files = []
@@ -328,9 +327,14 @@ def search_pc_or_directory():
             loading_anim_thread.start()
           
             try:
-                audio_files = search_whole_pc() # Loop through generator (each directory) and get info``
-                for directory in audio_files:
-                    pass
+                audio_file_gen = search_whole_pc() # Loop through generator (each directory) and get info``
+                flac_files = []
+                mpeg4_files = []
+                for directory in audio_file_gen: # Group every directory's results together
+                    flac_files += directory[0]
+                    mpeg4_files += directory[1]
+                audio_files = (flac_files, mpeg4_files)
+
             except Exception as err:
                 stop_thread_event.set()
                 exit(err)
@@ -377,6 +381,7 @@ def analyze_files_menu(cursor: sqlite3.Cursor, audio_files: tuple[list[str], lis
             break
 
         # The user wants to analyze a list or range of files
+        # Bug: list doesn't work with spaces (i.e. [1,2,3] works, but [1, 2, 3] does not.)
         if selection.startswith('[') and selection.endswith(']'):
 
             if '...' in selection:
@@ -391,10 +396,10 @@ def analyze_files_menu(cursor: sqlite3.Cursor, audio_files: tuple[list[str], lis
 
                     file = all_files[int(index)-1]
 
-                    if audio_file.endswith('.flac'):
-                        metadata = analyze_flac(audio_file)
+                    if file.endswith('.flac'):
+                        metadata = analyze_flac(file)
                     else:
-                        metadata = analyze_mpeg4(audio_file)
+                        metadata = analyze_mpeg4(file)
                     if metadata == 'continue':
                         continue
                     insert_data(cursor, metadata)
@@ -408,10 +413,10 @@ def analyze_files_menu(cursor: sqlite3.Cursor, audio_files: tuple[list[str], lis
 
                     file = all_files[int(index)-1]
 
-                    if audio_file.endswith('.flac'):
-                        metadata = analyze_flac(audio_file)
+                    if file.endswith('.flac'):
+                        metadata = analyze_flac(file)
                     else:
-                        metadata = analyze_mpeg4(audio_file)
+                        metadata = analyze_mpeg4(file)
                     if metadata == 'continue':
                         continue
                     insert_data(cursor, metadata)
