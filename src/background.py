@@ -1,8 +1,8 @@
 ##################################################################################
-#================================================================================#
+#================================================================================#                                                                                #
 # Author: Marcus Antonelli | GitHub: /marcus-a38 | E-Mail: marcus.an38@gmail.com #
-#================================================================================#
-#                Most Recent Publish Date: 7/19/2023 (version 1)                 #
+#================================================================================#                
+#                Most Recent Publish Date: 7/25/2023 (version 2)                 #
 #================================================================================#
 #                                                                                #
 #                               -- DISCLAIMER --                                 #
@@ -16,27 +16,34 @@
 #================================================================================#
 ##################################################################################
 
-from metaflac \
-    import search_whole_pc, analyze_flac, create_db, create_table, insert_data, create_backup_sql
-
-# First version of the scheduled scanning program that will search the entire PC and update the DB daily
+from metaflac import \
+    search_whole_pc, analyze_flac, analyze_mpeg4, \
+    create_db, create_table, insert_data, create_backup_sql
 
 def main():
 
-    flac_files = search_whole_pc()
+    drive_results_gen = search_whole_pc()
     database = create_db()
     conn = database[0]
     cursor = database[1]
 
     create_backup_sql(conn)
-    cursor.executescript("DROP TABLE IF EXISTS flac_file")
+    cursor.executescript("DROP TABLE IF EXISTS audio_metadata")
     create_table(cursor)
     
-    for flac_file in flac_files:
-        analyzed_file = analyze_flac(flac_path=flac_file, silent=True)
-        if analyzed_file == "continue":
-            continue
-        insert_data(cursor, data=analyzed_file)
+    for drive in drive_results_gen:
+        for file_type in drive: 
+            # This can likely be reworked, since we're searching 
+            # through FLACs and MPEGs separately anyways
+            for file in file_type:
+                if file.endswith('.flac'):
+                    analyzed_file = analyze_flac(flac_path=file, silent=True)
+                else:
+                    analyzed_file = analyze_mpeg4(mpeg4_path=file, silent=True)
+
+                if analyzed_file == "continue":
+                    continue
+                insert_data(cursor, data=analyzed_file)
 
     conn.commit()
     conn.close()
