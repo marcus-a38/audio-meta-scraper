@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: MetaSift
+Version: 2.0.0
+Summary: A small tool to find audio files and store their metadata.
+Author: Marcus Antonelli
+Author-email: contact@marcusantonelli.com
+License: GNU GPLv3
+Keywords: audio,metadata,scraper,metasift,paths,mutagen
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.9
+Requires-Dist: mutagen

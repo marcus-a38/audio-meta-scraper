@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+setup.cfg
+src/MetaSift.egg-info/PKG-INFO
+src/MetaSift.egg-info/SOURCES.txt
+src/MetaSift.egg-info/dependency_links.txt
+src/MetaSift.egg-info/entry_points.txt
+src/MetaSift.egg-info/not-zip-safe
+src/MetaSift.egg-info/requires.txt
+src/MetaSift.egg-info/top_level.txt
+src/metasift/__init__.py
+src/metasift/main.py
+src/metasift/metasutil/__init__.py
+src/metasift/metasutil/api.py
+src/metasift/metasutil/log.py
+src/metasift/metasutil/utils.py
+test/test.py
